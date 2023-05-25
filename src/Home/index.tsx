@@ -4,16 +4,14 @@ import { Camera, CameraType, FaceDetectionResult } from 'expo-camera'
 import { styles } from './style';
 import * as FaceDetector from 'expo-face-detector'
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
-import Alerta from '../../assets/alerta.mp3'
+import { Audio } from 'expo-av';
+
 
 export function Home() {
   const [faceDetected, setFaceDetected] = useState(false)
   const [permission, requesPermission] = Camera.useCameraPermissions()
-  const [sleepy, setSleepy] = useState(false);
-  const [smilin, setSmilin] = useState(false);
-  const [flashing, setFlashing] = useState(false)
-  const [crying, setCrying] = useState(false);
+  const [message , setMessage] = useState('')
+
 
   const playAlertSound = async () => {
     try {
@@ -25,6 +23,7 @@ export function Home() {
       console.log('Erro ao reproduzir o alerta sonoro:', error);
     }
   };
+
 
   const faceValues = useSharedValue({
     width: 0,
@@ -52,31 +51,18 @@ export function Home() {
       setFaceDetected(true)
 
       if (face.smilingProbability > 0.5) {
-        setSmilin(true);
-        setSleepy(false)
-        setFlashing(false)
-        setCrying(false);
+        setMessage('sorrindo!!😀')
       }
       else if (face.leftEyeOpenProbability > 0.5 && face.rightEyeOpenProbability < 0.5) {
-        setFlashing(true)
-        setSmilin(false);
-        setSleepy(false)
-        setCrying(false);
+        setMessage('piscando!!😉')
       }
       else if (face.leftEyeOpenProbability < 0.2 && face.rightEyeOpenProbability < 0.2) {
+        setMessage('cochilando!!😴')
         playAlertSound()
-        setCrying(true);
-        setFlashing(false)
-        setSmilin(false);
-        setSleepy(false)
       }
       else {
-        setSleepy(true)
-        setSmilin(false);
-        setFlashing(false)
-        setCrying(false);
+        setMessage('serio!!😐')
       }
-
     }
     else {
       setFaceDetected(false)
@@ -125,31 +111,10 @@ export function Home() {
 
       <Text style={styles.title} >DETECTOR DE FACE</Text>
 
-      {
-        smilin &&
-        <Text style={styles.smilinText}>Você esta sorrindo!!😀</Text>
-      }
-
-      {
-        sleepy &&
-        <Text style={styles.sleepyText}>Você esta serio.😐</Text>
-      }
-
-      {
-        flashing &&
-        <Text style={styles.flashingText}>Você esta piscando.😉</Text>
-      }
-
-      {
-        crying &&
-        <Text style={styles.cryingText}>Você esta dormindo.😴</Text>
-      }
-
+        <Text style={styles.smilinText}>Você esta {message} </Text>
+      
     </View>
   );
 }
-
-
-
 
 
